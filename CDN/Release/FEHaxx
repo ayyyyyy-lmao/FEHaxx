@@ -1,0 +1,230 @@
+-- Util --
+local v2 = Vector2.new
+local ud2 = UDim2.new
+local c3 = Color3.new
+local function ezUD2(x, y) return ud2(x[1],x[2],y[1],y[2]) end
+local function rgb(r,g,b) return Color3.new(r/255,g/255,b/255) end
+
+local function new(class, parent, props)
+	local inst = Instance.new(class, parent)
+	if not props then return inst end
+	for prop, val in pairs(props) do
+		inst[prop] = val
+	end
+	return inst
+end
+
+local function clone(inst, parent, props)
+	local newInst = inst:Clone()
+	newInst.Parent = parent
+	if not props then return newInst end
+	for prop, val in pairs(props) do
+		newInst[prop] = val
+	end
+	return newInst
+end
+
+local function newThread(closure) 
+	local thread = coroutine.create(closure)
+	coroutine.resume(thread)
+	return thread
+end
+
+local function typewrite(label, text, duration)
+	for i = 1, #text do
+		label.Text = string.sub(text, 1, i)
+		wait(duration/#text)
+	end
+end
+
+local function erase(label, duration)
+	local text = label.Text
+	for i = #text, 1, -1 do
+		label.Text = string.sub(text, 1, i)
+		wait(duration/#text)
+	end
+	label.Text = ""
+	wait(.1)
+end
+
+-- WIP, might use for buttons in later versions
+local function roundify(uiElement, scale)
+	if not scale then scale = 0.15 end
+	local border = new("ImageLabel", uiElement.Parent, {Name=uiElement.Name.."Corner",BackgroundColor3=uiElement.BackgroundColor3,Size=uiElement.Size+ud2(0,scale,0,scale),Position=uiElement.Position,ZIndex=uiElement.ZIndex-1,Image="rbxassetid://3570695787",ImageColor3=uiElement.BackgroundColor3,SliceCenter=Rect.new(100,100,100,100),ScaleType=1,SliceScale=0.12})
+end
+
+local function fetch(url, endpoint)
+	return game:HttpGet(url .. (endpoint or ""))
+end
+
+local RS = game:GetService("RunService").RenderStepped
+local waitIndex = 0
+local function fastWait(speed)
+	speed = speed or 3
+	waitIndex = waitIndex + 1
+	if waitIndex == speed then RS:Wait(); waitIndex = 0 end
+end
+
+local function transition(transitioner, oldPage, newPage, duration)
+	transitioner.Parent = oldPage
+	for i = 0, 1, 0.01 do
+		fastWait()
+		transitioner.Size = UDim2.new(1,0,i,0)
+	end
+	
+	transitioner.Parent = newPage
+	oldPage.Visible = false; newPage.Visible = true
+	
+	for i = 1, 0, -0.01 do
+		fastWait()
+		transitioner.Size = UDim2.new(1,0,i,0)
+	end
+end
+
+local activePage;
+local transitioner;
+local cooldown = false
+function switchToPage(newPage, dur)
+	if cooldown then return end; cooldown = true
+	transition(transitioner, activePage, newPage, dur)
+	activePage = newPage
+	cooldown = false
+end
+
+function setupPageButton(button, newPage)
+	button.MouseButton1Click:Connect(function()
+		switchToPage(newPage)
+	end)
+end
+
+function setupButton(button, callback)
+	button.MouseButton1Click:Connect(callback)
+end
+
+function getDescendants(inst)
+	local desc = {}
+	local function recurse(obj)
+		for _, child in pairs(obj:GetChildren()) do
+			table.insert(desc, child)
+			recurse(child)
+		end
+	end
+	recurse(inst)
+	return desc
+end
+
+-- Const --
+local FEHAXXVERSION = "1.0.0"
+local plr = game:GetService("Players").LocalPlayer
+local baseUrl = "https://raw.githubusercontent.com/ayyyyyy-lmao/FEHaxx/refs/heads/main/"
+
+-- Fetched content
+local MOTD = fetch(baseUrl, "MOTD")
+local latestVersion = fetch(baseUrl, "version"):gsub("\n",""):gsub("\r","") -- hacky way to clean string..
+
+-- GUI --
+local main = new("ScreenGui", game.Players.LocalPlayer.PlayerGui, {Name = "FEHaxx"})
+local holder = new("Frame", main, {Name="Main",AnchorPoint=v2(.5,.5),Position=ud2(0.5,0,.5,0),Size=ezUD2({0, 300},{0, 300}),BorderColor3=rgb(181, 121, 52),BorderSizePixel=5,Selectable=true,Active=true,Draggable=true,BackgroundColor3=c3(1,1,1)})
+local header = new("TextLabel", holder, {Name="Header",BackgroundColor3=rgb(238, 162, 56),Size=ezUD2({1, 0},{0, 25}),Text="FEHaxx - V"..FEHAXXVERSION,TextColor3=c3(1,1,1),BorderSizePixel=0,TextScaled=true})
+local footer = clone(header, holder, {Name="Footer",AnchorPoint=v2(0, 1),Position=ezUD2({0, 0},{1, 0}),Text=""})
+
+-- Page 1: FE Scripts
+local page1 = new("Frame", holder, {Name="Page1",BackgroundTransparency=1,Position=ezUD2({0, 0},{0, 25}),Size=ezUD2({1, 0},{1, -50}), BorderSizePixel=0,Visible = false})
+local div = new("Frame", page1, {Name="Divider",BackgroundColor3=rgb(238, 162, 56),Size=ezUD2({1, 0},{0, 5}),BorderSizePixel=0,Position=ezUD2({0, 0},{0, 39})})
+local pageTitle = new("TextLabel", page1, {Name="PageTitle",BackgroundTransparency=1,Size=ezUD2({1, 0},{0, 39}),Position=ezUD2({0, 0},{0, 0}),BorderSizePixel=0,Text="FE Scripts",TextColor3=rgb(238, 162, 56),TextScaled=true})
+local SitAll = new("TextButton", page1, {Name="SitAll", TextColor3=c3(1,1,1),TextScaled=true,Text="Sit All",Position=ezUD2({0, 10},{0, 57}),Size=ezUD2({0, 88},{0, 30}),BackgroundColor3=rgb(238, 162, 56),BorderSizePixel=0})
+local JumpAll = clone(SitAll, page1, {Name="JumpAll", Text="Jump All", Position=ezUD2({0, 105},{0, 57})})
+local Telekinesis = clone(SitAll, page1, {Name="Telekinesis", Text="Telekinesis", Position=ezUD2({0, 201},{0, 57})})
+local Back = clone(SitAll, page1, {Name="Back", Text="Back", Position=ezUD2({0, 105},{0, 213})})
+
+-- Page 2: Client Scripts
+local page2 = new("Frame", holder, {Name="Page2",BackgroundTransparency=1,Position=ezUD2({0, 0},{0, 25}),Size=ezUD2({1, 0},{1, -50}), BorderSizePixel=0,Visible=false}) 
+local div = clone(div, page2)
+local pageTitle = clone(pageTitle, page2, {Text="Client Scripts"})
+local BTools = clone(SitAll, page2, {Name="BTools",Text="BTools"})
+local UnlockWS = clone(JumpAll, page2, {Name="UnlockWS",Text="Unlock Workspace"})
+local WalkSpeed = clone(Telekinesis, page2, {Name="WalkSpeed",Text="WalkSpeed"})
+local JumpPower = clone(WalkSpeed, page2, {Name="JumpPower", Text="JumpPower", Position=ezUD2({0, 10},{0, 95})})
+local Value = new("TextBox", page2, {Name="Value",BorderSizePixel=0,BackgroundColor3=rgb(238, 162, 56),Position=ezUD2({0, 104},{0, 97}),Size=ezUD2({0, 184},{0, 25}),TextColor3=c3(1,1,1),TextScaled = true,Text="50"})
+local Back = clone(Back, page2)
+
+-- Page 3: Executor
+local page3 = new("Frame", holder, {Name="Page3",BackgroundTransparency=1,Position=ezUD2({0, 0},{0, 25}),Size=ezUD2({1, 0},{1, -50}), BorderSizePixel=0,Visible=false}) 
+local div = clone(div, page3)
+local pageTitle = clone(pageTitle, page3, {Text="Executor"})
+local Source = clone(Value, page3, {Name="Source",Text="print(\"Hello, world!\")",TextXAlignment=0,TextYAlignment=0,TextScaled=false,TextWrapped=true,MultiLine=true,ClearTextOnFocus=false,Size=ezUD2({1, 0},{0, 158}),Position=ezUD2({0, 0},{0, 43}),FontSize=3})
+local Execute = clone(JumpPower, page3, {Text="Execute",Name="Execute",Position=ezUD2({0, 10},{0, 210})})
+local Clear = clone(Execute, page3, {Name="Clear",Text="Clear",Position=ezUD2({0, 202},{0, 210})})
+local Back = clone(Back, page3, {Position=ezUD2({0, 105},{0, 210})})
+
+-- Page 4: Main/Hub
+local page4 = new("Frame", holder, {Name="Page4",BackgroundTransparency=1,Position=ezUD2({0, 0},{0, 25}),Size=ezUD2({1, 0},{1, -50}), BorderSizePixel=0}) 
+local div = clone(div, page4)
+local pageTitle = clone(pageTitle, page4, {Text="Main"})
+local FEScripts = clone(SitAll, page4, {Name="FEScripts",Text="FE Scripts"})
+local ClientScripts = clone(JumpAll, page4, {Name="ClientScripts",Text="Client Scripts"})
+local Executor = clone(Telekinesis, page4, {Name="Executor",Text="Executor"})
+
+-- Transition
+transitioner = new("Frame", nil, {Name = "Transition", BackgroundColor3=rgb(238, 162, 56),BorderSizePixel = 0, Size=ud2(1,0,0,0),ZIndex=10})
+activePage = page4
+
+-- Connections --
+setupPageButton(FEScripts, page1)
+setupPageButton(ClientScripts, page2)
+setupPageButton(Executor, page3)
+
+-- Page 1 Buttons (FE Scripts)
+setupButton(SitAll, function()
+	for _,plr in pairs(game:GetService("Players"):GetPlayers()) do
+		local char = plr.Character
+		if char and char:FindFirstChildOfClass("Humanoid") then
+			char:FindFirstChildOfClass("Humanoid").Sit = true
+		end
+	end
+end)
+setupButton(JumpAll, function()
+	for _,plr in pairs(game:GetService("Players"):GetPlayers()) do
+		local char = plr.Character
+		if char and char:FindFirstChildOfClass("Humanoid") then
+			char:FindFirstChildOfClass("Humanoid").Jump = true
+		end
+	end
+end)
+setupButton(Telekinesis, function()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/ayyyyyy-lmao/FEHaxx/refs/heads/main/CDN/Scripts/STK"))()
+end)
+setupPageButton(page1.Back, page4)
+
+-- Page 2 Buttons (Client Scripts)
+setupButton(BTools, function() for i = 1, 4 do new("HopperBin",plr.Backpack,{BinType=i}) end end)
+setupButton(UnlockWS, function() for _,v in pairs(getDescendants(workspace)) do if v:IsA("BasePart") then v.Locked = false end end end)
+setupButton(WalkSpeed, function() plr.Character.Humanoid.WalkSpeed = tonumber(Value.Text) end)
+setupButton(JumpPower, function() plr.Character.Humanoid.JumpPower = tonumber(Value.Text) end)
+setupPageButton(page2.Back, page4)
+
+-- Page 3 Buttons (Executor)
+setupButton(Execute, function() loadstring(Source.Text)() end)
+setupButton(Clear, function() Source.Text = "" end)
+setupPageButton(page3.Back, page4)
+
+-- Init
+newThread(function()
+	local versionTxt = latestVersion == FEHAXXVERSION and "You are using the latest version of FEHaxx" or ("You are on an outdated version of FEHaxx. Latest: %s | Using: %s"):format(latestVersion, FEHAXXVERSION)
+	while true do
+		typewrite(footer,"Welcome, "..plr.Name,2.5)
+		wait(2)
+		erase(footer, .5)
+		typewrite(footer, "This place is Filtering" .. (workspace.FilteringEnabled and "Enabled" or "Disabled"), 3)
+		wait(2.5)
+		erase(footer, .5)
+		typewrite(footer, versionTxt, 6.5)
+		wait(3)
+		erase(footer, .5)
+		typewrite(footer, "MOTD: " .. MOTD, 5)
+		wait(4)
+		erase(footer, .5)
+	end
+end)
+
+print("FEHaxx v1.0.0 by CheckkCashedd loaded")
