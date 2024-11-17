@@ -127,7 +127,7 @@ local MOTD = stripString(fetch(baseUrl, "MOTD"))
 local latestVersion = stripString(fetch(baseUrl, "version"))
 
 -- GUI --
-local main = new("ScreenGui", game.Players.LocalPlayer.PlayerGui, {Name = "FEHaxx"})
+local main = new("ScreenGui", game.CoreGui, {Name = "FEHaxx"})
 local holder = new("Frame", main, {Name="Main",AnchorPoint=v2(.5,.5),Position=ud2(0.5,0,.5,0),Size=ezUD2({0, 300},{0, 300}),BorderColor3=rgb(181, 121, 52),BorderSizePixel=5,Selectable=true,Active=true,Draggable=true,BackgroundColor3=c3(1,1,1)})
 local header = new("TextLabel", holder, {Name="Header",BackgroundColor3=rgb(238, 162, 56),Size=ezUD2({1, 0},{0, 25}),Text="FEHaxx - V"..FEHAXXVERSION,TextColor3=c3(1,1,1),BorderSizePixel=0,TextScaled=true})
 local footer = clone(header, holder, {Name="Footer",AnchorPoint=v2(0, 1),Position=ezUD2({0, 0},{1, 0}),Text=""})
