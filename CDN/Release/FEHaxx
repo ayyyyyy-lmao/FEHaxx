@@ -84,24 +84,24 @@ end
 local activePage;
 local transitioner;
 local cooldown = false
-function switchToPage(newPage, dur)
+local function switchToPage(newPage, dur)
 	if cooldown then return end; cooldown = true
 	transition(transitioner, activePage, newPage, dur)
 	activePage = newPage
 	cooldown = false
 end
 
-function setupPageButton(button, newPage)
+local function setupPageButton(button, newPage)
 	button.MouseButton1Click:Connect(function()
 		switchToPage(newPage)
 	end)
 end
 
-function setupButton(button, callback)
+local function setupButton(button, callback)
 	button.MouseButton1Click:Connect(callback)
 end
 
-function getDescendants(inst)
+local function getDescendants(inst)
 	local desc = {}
 	local function recurse(obj)
 		for _, child in pairs(obj:GetChildren()) do
@@ -113,14 +113,18 @@ function getDescendants(inst)
 	return desc
 end
 
+local function stripString(str)
+	return str:gsub("\n",""):gsub("\r","")
+end
+
 -- Const --
 local FEHAXXVERSION = "1.0.0"
 local plr = game:GetService("Players").LocalPlayer
 local baseUrl = "https://raw.githubusercontent.com/ayyyyyy-lmao/FEHaxx/refs/heads/main/"
 
 -- Fetched content
-local MOTD = fetch(baseUrl, "MOTD")
-local latestVersion = fetch(baseUrl, "version"):gsub("\n",""):gsub("\r","") -- hacky way to clean string..
+local MOTD = stripString(fetch(baseUrl, "MOTD"))
+local latestVersion = stripString(fetch(baseUrl, "version"))
 
 -- GUI --
 local main = new("ScreenGui", game.Players.LocalPlayer.PlayerGui, {Name = "FEHaxx"})
