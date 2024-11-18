@@ -131,7 +131,7 @@ local function stripString(str)
 end
 
 -- Const --
-local FEHAXXVERSION = "1.0.0"
+local FEHAXXVERSION = "1.0.1"
 local plr = game:GetService("Players").LocalPlayer
 local baseUrl = "https://raw.githubusercontent.com/ayyyyyy-lmao/FEHaxx/refs/heads/main/"
 
@@ -248,4 +248,4 @@ newThread(function()
 	end
 end)
 
-print("FEHaxx v1.0.0 by CheckkCashedd loaded")
+print("FEHaxx v"..FEHAXXVERSION.." by CheckkCashedd loaded")
