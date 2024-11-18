@@ -153,6 +153,7 @@ local SitAll = new("TextButton", page1, {Name="SitAll", TextColor3=c3(1,1,1),Tex
 local JumpAll = clone(SitAll, page1, {Name="JumpAll", Text="Jump All", Position=ezUD2({0, 105},{0, 57})})
 local Telekinesis = clone(SitAll, page1, {Name="Telekinesis", Text="Telekinesis", Position=ezUD2({0, 201},{0, 57})})
 local Freecam = clone(SitAll, page1, {Name="Freecam",Text="Freecam",Position=ezUD2({0, 10},{0, 95})})
+local BrickSpam = clone(SitAll, page1, {Name="BrickSpam",Text="BrickSpam [OFF]",Position=ezUD2({0, 105},{0, 95})})
 local Back = clone(SitAll, page1, {Name="Back", Text="Back", Position=ezUD2({0, 105},{0, 213})})
 
 -- Page 2: Client Scripts
@@ -214,6 +215,20 @@ setupButton(Telekinesis, function()
 end)
 setupButton(Freecam, function()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/ayyyyyy-lmao/FEHaxx/refs/heads/main/CDN/Scripts/FC"))()
+end)
+setupButton(BrickSpam, function()
+	-- bit of a hack, its like 4:00 am im too tired to come up with something better
+	if FEHAXX_BrickSpammingEnabled == nil then
+		getgenv().FEHAXX_BrickSpammingEnabled = true
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/ayyyyyy-lmao/FEHaxx/refs/heads/main/CDN/Scripts/BS"))()
+		BrickSpam.Text = "BrickSpam [ON]"
+	elseif FEHAXX_BrickSpammingEnabled == true then
+		getgenv().FEHAXX_BrickSpammingEnabled = false
+		BrickSpam.Text = "BrickSpam [OFF]"
+	else
+		getgenv().FEHAXX_BrickSpammingEnabled = true
+		BrickSpam.Text = "BrickSpam [ON]"
+	end
 end)
 setupPageButton(page1.Back, page4)
 
