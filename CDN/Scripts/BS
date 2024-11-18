@@ -1,0 +1,55 @@
+local plr = game:GetService("Players").LocalPlayer
+
+function respawn()
+	local newChar = Instance.new("Model", workspace)
+	Instance.new("Part", newChar).Name = "Torso"
+	Instance.new("Part", newChar).Name = "Head"
+	Instance.new("Humanoid", newChar).Name = "Humanoid"
+	plr.Character = newChar
+end
+FEHAXX_BrickSpammingEnabled = true
+
+while true do
+	if FEHAXX_BrickSpammingEnabled then -- power of getgenv
+		wait(1)
+		for _,v in pairs(plr.Backpack:GetChildren()) do
+			if v:IsA("Accoutrement") then
+				v.Parent = plr.Character
+				v.Parent = workspace.Terrain
+			end
+		end
+		
+		for i,v in pairs(plr.Character:GetChildren()) do
+			if v:IsA("Accoutrement") then
+				for ape,hax in pairs(v.Handle:GetChildren()) do
+					hax:Destroy()
+				end
+				wait(.1)
+				v.Parent=plr.StarterGear
+			end
+		end
+
+		for _,v in pairs(plr.Character:GetChildren()) do
+			v:Destroy()
+		end
+
+		respawn()
+
+		repeat
+			wait(1)
+		until plr.Character:FindFirstChild("Head")
+		for lol,dad in pairs(plr.Backpack:GetChildren()) do
+			if dad:IsA("Accoutrement") then
+				dad.Parent = plr.StarterGear
+			end
+		end
+
+		for _,v in pairs(plr.Character:GetChildren()) do
+			v:Destroy()
+		end
+
+		respawn()
+	else
+		wait(.1)
+	end
+end
