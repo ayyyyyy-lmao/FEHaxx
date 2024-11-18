@@ -82,6 +82,30 @@ local function transition(transitioner, oldPage, newPage, duration)
 	end
 end
 
+local isVisible = true
+local invisObjs = {}
+local function tweenVisibility(objs, visible)
+	print(visible)
+	local step = visible and -.01 or .01
+	local start = visible and 1 or 0
+	local goal = visible and 0 or 1
+	isVisible = visible
+	
+	for _,v in pairs(objs) do v.Visible = true end
+	
+	for i = start, goal, step do
+		fastWait(5)
+		for _,v in pairs(objs) do
+			-- lazy hack, sorry its 5:00 am
+			if not invisObjs[v] then invisObjs[v] = v.BackgroundTransparency end
+			pcall(function() if invisObjs[v] == 0 then v.BackgroundTransparency = i end end)
+			pcall(function() v.TextTransparency = i end) 
+		end
+	end
+	
+	for _,v in pairs(objs) do v.Visible = visible end
+end
+
 local activePage;
 local transitioner;
 local cooldown = false
@@ -244,6 +268,19 @@ setupButton(Execute, function() loadstring(Source.Text)() end)
 setupButton(Clear, function() Source.Text = "" end)
 setupPageButton(page3.Back, page4)
 
+-- Keybind
+local visCooldown = false
+game:GetService("UserInputService").InputBegan:Connect(function(key, proc)
+	if visCooldown then return end; visCooldown = true
+	if proc then return end
+	if key.KeyCode == Enum.KeyCode.RightAlt then
+		local objs = activePage:GetChildren()
+		table.insert(objs, holder); table.insert(objs, footer); table.insert(objs, header)
+		tweenVisibility(objs, (not isVisible))
+	end
+	visCooldown = false
+end)
+
 -- Init
 newThread(function()
 	local versionTxt = latestVersion == FEHAXXVERSION and "You are using the latest version of FEHaxx" or ("You are on an outdated version of FEHaxx. Latest: %s | Using: %s"):format(latestVersion, FEHAXXVERSION)
@@ -256,6 +293,9 @@ newThread(function()
 		erase(footer, .5)
 		typewrite(footer, versionTxt, 6.5)
 		wait(3)
+		erase(footer, .5)
+		typewrite("Press Right Alt to toggle UI visibility", 3)
+		wait(3.5)
 		erase(footer, .5)
 		typewrite(footer, "MOTD: " .. MOTD, 5)
 		wait(4)
