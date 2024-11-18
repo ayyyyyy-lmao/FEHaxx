@@ -53,8 +53,9 @@ local function roundify(uiElement, scale)
 	local border = new("ImageLabel", uiElement.Parent, {Name=uiElement.Name.."Corner",BackgroundColor3=uiElement.BackgroundColor3,Size=uiElement.Size+ud2(0,scale,0,scale),Position=uiElement.Position,ZIndex=uiElement.ZIndex-1,Image="rbxassetid://3570695787",ImageColor3=uiElement.BackgroundColor3,SliceCenter=Rect.new(100,100,100,100),ScaleType=1,SliceScale=0.12})
 end
 
+local hasHttpGet = pcall(function() return game:HttpGet("https://example.com") end)
 local function fetch(url, endpoint)
-	return game:HttpGet(url .. (endpoint or ""))
+	return hasHttpGet and game:HttpGet(url .. (endpoint or "")) or "Unable to fetch content"
 end
 
 local RS = game:GetService("RunService").RenderStepped
@@ -71,10 +72,10 @@ local function transition(transitioner, oldPage, newPage, duration)
 		fastWait()
 		transitioner.Size = UDim2.new(1,0,i,0)
 	end
-	
+
 	transitioner.Parent = newPage
 	oldPage.Visible = false; newPage.Visible = true
-	
+
 	for i = 1, 0, -0.01 do
 		fastWait()
 		transitioner.Size = UDim2.new(1,0,i,0)
@@ -101,6 +102,12 @@ local function setupButton(button, callback)
 	button.MouseButton1Click:Connect(callback)
 end
 
+-- new gethui method i just came up with
+local function gethui()
+	local hasCore = pcall(function() return game:GetService("CoreGui").Name end)
+	return hasCore and game:GetService("CoreGui") or game:GetService("Players").LocalPlayer.PlayerGui
+end
+
 local function getDescendants(inst)
 	local desc = {}
 	local function recurse(obj)
@@ -111,6 +118,12 @@ local function getDescendants(inst)
 	end
 	recurse(inst)
 	return desc
+end
+
+-- cool little hack i came up with to send a notification directly thru coregui
+-- might use for this later, originally made for my freecam script
+function notify(title, body, img, dur)
+	game:GetService("CoreGui"):WaitForChild("RobloxGui").SendNotification:Invoke(title, body, img or "", dur or 5)
 end
 
 local function stripString(str)
@@ -127,7 +140,7 @@ local MOTD = stripString(fetch(baseUrl, "MOTD"))
 local latestVersion = stripString(fetch(baseUrl, "version"))
 
 -- GUI --
-local main = new("ScreenGui", game.CoreGui, {Name = "FEHaxx"})
+local main = new("ScreenGui", gethui(), {Name = "FEHaxx"})
 local holder = new("Frame", main, {Name="Main",AnchorPoint=v2(.5,.5),Position=ud2(0.5,0,.5,0),Size=ezUD2({0, 300},{0, 300}),BorderColor3=rgb(181, 121, 52),BorderSizePixel=5,Selectable=true,Active=true,Draggable=true,BackgroundColor3=c3(1,1,1)})
 local header = new("TextLabel", holder, {Name="Header",BackgroundColor3=rgb(238, 162, 56),Size=ezUD2({1, 0},{0, 25}),Text="FEHaxx - V"..FEHAXXVERSION,TextColor3=c3(1,1,1),BorderSizePixel=0,TextScaled=true})
 local footer = clone(header, holder, {Name="Footer",AnchorPoint=v2(0, 1),Position=ezUD2({0, 0},{1, 0}),Text=""})
@@ -139,6 +152,7 @@ local pageTitle = new("TextLabel", page1, {Name="PageTitle",BackgroundTransparen
 local SitAll = new("TextButton", page1, {Name="SitAll", TextColor3=c3(1,1,1),TextScaled=true,Text="Sit All",Position=ezUD2({0, 10},{0, 57}),Size=ezUD2({0, 88},{0, 30}),BackgroundColor3=rgb(238, 162, 56),BorderSizePixel=0})
 local JumpAll = clone(SitAll, page1, {Name="JumpAll", Text="Jump All", Position=ezUD2({0, 105},{0, 57})})
 local Telekinesis = clone(SitAll, page1, {Name="Telekinesis", Text="Telekinesis", Position=ezUD2({0, 201},{0, 57})})
+local Freecam = clone(SitAll, page1, {Name="Freecam",Text="Freecam",Position=ezUD2({0, 10},{0, 95})})
 local Back = clone(SitAll, page1, {Name="Back", Text="Back", Position=ezUD2({0, 105},{0, 213})})
 
 -- Page 2: Client Scripts
@@ -197,6 +211,9 @@ setupButton(JumpAll, function()
 end)
 setupButton(Telekinesis, function()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/ayyyyyy-lmao/FEHaxx/refs/heads/main/CDN/Scripts/STK"))()
+end)
+setupButton(Freecam, function()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/ayyyyyy-lmao/FEHaxx/refs/heads/main/CDN/Scripts/FC"))()
 end)
 setupPageButton(page1.Back, page4)
 
