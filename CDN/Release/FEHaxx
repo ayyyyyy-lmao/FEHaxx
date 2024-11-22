@@ -303,4 +303,4 @@ newThread(function()
 	end
 end)
 
-print("FEHaxx v"..FEHAXXVERSION.." by CheckkCashedd loaded")
+print("FEHaxx v"..FEHAXXVERSION.." by CCV7 loaded")
