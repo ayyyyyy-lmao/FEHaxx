@@ -1,5 +1,3 @@
--- MOTD: BMW rapes homosexual children --
-
 -- Util --
 local v2 = Vector2.new
 local ud2 = UDim2.new
