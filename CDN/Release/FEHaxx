@@ -1,5 +1,4 @@
--- Hi KFC
--- I know you're here 
+-- MOTD: BMW rapes homosexual children --
 
 -- Util --
 local v2 = Vector2.new
@@ -306,4 +305,4 @@ newThread(function()
 	end
 end)
 
-print("FEHaxx v"..FEHAXXVERSION.." by CCV7 loaded")
+print("FEHaxx v"..FEHAXXVERSION.." by cr7 loaded")
