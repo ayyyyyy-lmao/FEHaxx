@@ -303,4 +303,4 @@ newThread(function()
 	end
 end)
 
-print("FEHaxx v"..FEHAXXVERSION.." by cr7 loaded")
+print("FEHaxx v"..FEHAXXVERSION.." loaded")
