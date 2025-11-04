@@ -53,9 +53,9 @@ local function roundify(uiElement, scale)
 	local border = new("ImageLabel", uiElement.Parent, {Name=uiElement.Name.."Corner",BackgroundColor3=uiElement.BackgroundColor3,Size=uiElement.Size+ud2(0,scale,0,scale),Position=uiElement.Position,ZIndex=uiElement.ZIndex-1,Image="rbxassetid://3570695787",ImageColor3=uiElement.BackgroundColor3,SliceCenter=Rect.new(100,100,100,100),ScaleType=1,SliceScale=0.12})
 end
 
-local hasHttpGet = pcall(function() return game:HttpGet("https://example.com") end)
+local hasHttpGet = pcall(function() return game:HttpGet("https://example.com", true) end)
 local function fetch(url, endpoint)
-	return hasHttpGet and game:HttpGet(url .. (endpoint or "")) or "Unable to fetch content"
+	return hasHttpGet and game:HttpGet(url .. (endpoint or ""), true) or "Unable to fetch content"
 end
 
 local RS = game:GetService("RunService").RenderStepped
@@ -235,16 +235,16 @@ setupButton(JumpAll, function()
 	end
 end)
 setupButton(Telekinesis, function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/ayyyyyy-lmao/FEHaxx/refs/heads/main/CDN/Scripts/STK"))()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/ayyyyyy-lmao/FEHaxx/refs/heads/main/CDN/Scripts/STK", true))()
 end)
 setupButton(Freecam, function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/ayyyyyy-lmao/FEHaxx/refs/heads/main/CDN/Scripts/FC"))()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/ayyyyyy-lmao/FEHaxx/refs/heads/main/CDN/Scripts/FC", true))()
 end)
 setupButton(BrickSpam, function()
 	-- bit of a hack, its like 4:00 am im too tired to come up with something better
 	if FEHAXX_BrickSpammingEnabled == nil then
 		getgenv().FEHAXX_BrickSpammingEnabled = true
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/ayyyyyy-lmao/FEHaxx/refs/heads/main/CDN/Scripts/BS"))()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/ayyyyyy-lmao/FEHaxx/refs/heads/main/CDN/Scripts/BS", true))()
 		BrickSpam.Text = "BrickSpam [ON]"
 	elseif FEHAXX_BrickSpammingEnabled == true then
 		getgenv().FEHAXX_BrickSpammingEnabled = false
