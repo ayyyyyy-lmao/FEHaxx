@@ -117,13 +117,13 @@ local function switchToPage(newPage, dur)
 end
 
 local function setupPageButton(button, newPage)
-	button.MouseButton1Click:Connect(function()
+	button.MouseButton1Click:connect(function()
 		switchToPage(newPage)
 	end)
 end
 
 local function setupButton(button, callback)
-	button.MouseButton1Click:Connect(callback)
+	button.MouseButton1Click:connect(callback)
 end
 
 -- new gethui method i just came up with
@@ -270,7 +270,7 @@ setupPageButton(page3.Back, page4)
 
 -- Keybind
 local visCooldown = false
-game:GetService("UserInputService").InputBegan:Connect(function(key, proc)
+game:GetService("UserInputService").InputBegan:connect(function(key, proc)
 	if visCooldown then return end; visCooldown = true
 	if proc then return end
 	if key.KeyCode == Enum.KeyCode.RightAlt then
